@@ -1,20 +1,26 @@
+name: "hello world"
+
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  send-request-from-runner:
-    runs-on: ubuntu-latest
+  run-tests-before-merge:
+    runs-on: ubuntu-26.04 # it has 3.14 python that we want
     steps:
-      - name: Send 5 test requests
-        run: |
-          for i in 1 2 3 4 5; do
-            echo "=== Request $i ==="
-            curl -s -i -X POST "https://lubricate-flatness-foster.ngrok-free.dev/events" \
-              -H "Content-Type: application/json" \
-              -H "ngrok-skip-browser-warning: true" \
-              -d '{"title":"gdgdgg","description":"dgg","location":"mubai","starts_at":"2026-11-14T18:44:07.736Z","ends_at":"2026-12-14T18:44:07.736Z"}'
-            echo ""
-          done
+      - name: get our code
+        uses: actions/checkout@v4 # official repo cloner
 
+      - name: get uv pkg manager
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+         python-version: "3.14"
+         enable-cache: true
+      
+      - name: run pytest
+        run: uv run pytest
 
-          
