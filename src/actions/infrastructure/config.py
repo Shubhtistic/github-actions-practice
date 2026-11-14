@@ -24,7 +24,7 @@ class PostgresSettings(CommonSettings):
 
     postgres_user: str = Field(validation_alias="POSTGRES_USER")
 
-    postgres_password: SecretStr = Field(validation_alias="POSTGRES_PASSWORD")
+    postgres_password: str = Field(validation_alias="POSTGRES_PASSWORD")
 
     postgres_db: str = Field(validation_alias="POSTGRES_DB")
 
@@ -33,7 +33,7 @@ class PostgresSettings(CommonSettings):
         return (
             f"postgresql+asyncpg://"
             f"{self.postgres_user}:"
-            f"{self.postgres_password.get_secret_value()}"
+            f"{self.postgres_password}"
             f"@{self.postgres_server}:"
             f"{self.postgres_port}/"
             f"{self.postgres_db}"

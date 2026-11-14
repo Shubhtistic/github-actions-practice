@@ -1,0 +1,20 @@
+on:
+  push:
+
+jobs:
+  send-request-from-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send 5 test requests
+        run: |
+          for i in 1 2 3 4 5; do
+            echo "=== Request $i ==="
+            curl -s -i -X POST "https://lubricate-flatness-foster.ngrok-free.dev/events" \
+              -H "Content-Type: application/json" \
+              -H "ngrok-skip-browser-warning: true" \
+              -d '{"title":"gdgdgg","description":"dgg","location":"mubai","starts_at":"2026-11-14T18:44:07.736Z","ends_at":"2026-12-14T18:44:07.736Z"}'
+            echo ""
+          done
+
+
+          

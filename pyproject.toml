@@ -9,6 +9,7 @@ dependencies = [
     "fastapi>=0.162.7",
     "granian[reload,uvloop]>=2.8.8",
     "greenlet>=3.5.6",
+    "orjson>=3.13.0",
     "pydantic>=2.14.3",
     "pydantic-settings>=2.16.3",
     "scalar-fastapi>=1.9.3",

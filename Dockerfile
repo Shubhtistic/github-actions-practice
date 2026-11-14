@@ -8,7 +8,7 @@ FROM python:3.14 AS builder
 # Docker treats it as a folder rather than a single file name. 
 # It drops both binaries (/bin/uv and /bin/uvx) side-by-side inside that folder
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.5 /uv /uvx /bin/
 
 
 WORKDIR /event-management
@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM python:3.14-slim
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.5 /uv /uvx /bin/
 
 WORKDIR /event-management
 
@@ -32,6 +32,7 @@ RUN chown -R deploy_user:deploy_group /event-management
 
 COPY --from=builder --chown=deploy_user:deploy_group /event-management/.venv /event-management/.venv
 COPY --chown=deploy_user:deploy_group . .
+RUN chmod +x /event-management/start.sh
 
 # Tell uv explicitly where the pre-built project environment is located
 ENV UV_PROJECT_ENVIRONMENT="/event-management/.venv"
