@@ -1,0 +1,17 @@
+[project]
+name = "github-actions"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "alembic>=1.17.2",
+    "asyncpg>=0.32.0",
+    "black>=26.10.1",
+    "fastapi>=0.162.7",
+    "granian[reload,uvloop]>=2.8.8",
+    "greenlet>=3.5.6",
+    "pydantic>=2.14.3",
+    "pydantic-settings>=2.16.3",
+    "scalar-fastapi>=1.9.3",
+    "sqlalchemy>=2.1.8",
+    "sqlmodel>=0.0.50",
+]

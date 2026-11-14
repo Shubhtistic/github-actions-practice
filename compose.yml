@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  alembic:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./alembic:/event-management/alembic
+    # Direct execution - no "uv run"
+    command: ["alembic", "upgrade", "head"]
+
+  backend:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - ./src:/event-management/src
+      - ./alembic:/event-management/alembic
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      alembic:
+        condition: service_completed_successfully
+    # Direct execution - no "uv run"
+    command: ["granian", "--interface", "asgi", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+volumes:
+  pgdata:
