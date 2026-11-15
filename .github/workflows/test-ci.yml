@@ -20,7 +20,7 @@ jobs:
      # ruff does not need python env
      # this automatically does ruff check and we can also use this later as its added in runner env
      - name: setup ruff
-       uses: astral-sh/ruff-action@v4
+       uses: astral-sh/ruff-action@v4.1.0
 
   do-type-checks-with-ty:
     runs-on: ubuntu-26.04
