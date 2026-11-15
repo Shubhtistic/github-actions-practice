@@ -28,6 +28,9 @@ jobs:
           --health-retries 5
 
     env:
+      ENVIRONMENT: test
+      PROJECT_NAME: actions
+      VERSION: 0.1.0
       POSTGRES_SERVER: localhost
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
