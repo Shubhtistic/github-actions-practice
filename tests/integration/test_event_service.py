@@ -33,7 +33,9 @@ async def test_create_event_persists_and_returns_model():
     assert event.id is not None
     assert event.title == "Launch"
 
-    fetched = await EventService.get_event(event.id)
+    event_id = event.id
+    assert event_id is not None
+    fetched = await EventService.get_event(event_id)
     assert fetched.id == event.id
     assert fetched.description == "Ship it"
 
@@ -68,7 +70,9 @@ async def test_list_events_returns_ordered_page():
 async def test_update_event_changes_provided_fields_only():
     event = await EventService.create_event(_payload())
 
-    updated = await EventService.update_event(event.id, EventUpdate(title="Renamed"))
+    event_id = event.id
+    assert event_id is not None
+    updated = await EventService.update_event(event_id, EventUpdate(title="Renamed"))
 
     assert updated.id == event.id
     assert updated.title == "Renamed"
@@ -78,10 +82,12 @@ async def test_update_event_changes_provided_fields_only():
 
 async def test_update_event_can_move_time_range():
     event = await EventService.create_event(_payload())
+    event_id = event.id
+    assert event_id is not None
 
     new_start = START + timedelta(days=5)
     updated = await EventService.update_event(
-        event.id,
+        event_id,
         EventUpdate(starts_at=new_start, ends_at=new_start + timedelta(hours=3)),
     )
 
@@ -91,13 +97,15 @@ async def test_update_event_can_move_time_range():
 
 async def test_update_event_rejects_invalid_merged_range():
     event = await EventService.create_event(_payload())
+    event_id = event.id
+    assert event_id is not None
 
     with pytest.raises(InvalidEventTimeError):
         await EventService.update_event(
-            event.id, EventUpdate(ends_at=START - timedelta(minutes=1))
+            event_id, EventUpdate(ends_at=START - timedelta(minutes=1))
         )
 
-    fetched = await EventService.get_event(event.id)
+    fetched = await EventService.get_event(event_id)
     assert fetched.ends_at == END
 
 
@@ -108,11 +116,13 @@ async def test_update_event_raises_for_unknown_id():
 
 async def test_delete_event_removes_row():
     event = await EventService.create_event(_payload())
+    event_id = event.id
+    assert event_id is not None
 
-    await EventService.delete_event(event.id)
+    await EventService.delete_event(event_id)
 
     with pytest.raises(EventNotFoundError):
-        await EventService.get_event(event.id)
+        await EventService.get_event(event_id)
 
 
 async def test_delete_event_raises_for_unknown_id():

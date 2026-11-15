@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import Any, cast
 
 from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,7 +37,10 @@ async def list_events(
     offset: int = 0,
 ) -> list[Event]:
     """Fetch a page of events ordered by start time."""
-    stmt: Select = select(Event).order_by(Event.starts_at).offset(offset).limit(limit)
+    event_table = cast(Any, Event).__table__
+    stmt: Select[Event] = (
+        select(Event).order_by(event_table.c.starts_at).offset(offset).limit(limit)
+    )
     return list(await get_all(stmt, db_session))
 
 

@@ -1,3 +1,4 @@
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -13,7 +14,7 @@ pytestmark = pytest.mark.usefixtures("use_test_db")
 
 
 @pytest_asyncio.fixture
-async def client() -> AsyncClient:
+async def client() -> AsyncGenerator[AsyncClient, None]:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as http_client:
         yield http_client

@@ -33,7 +33,7 @@ def test_event_create_allows_optional_fields_to_be_omitted():
 
 def test_event_create_requires_title_and_times():
     with pytest.raises(ValidationError) as exc_info:
-        EventCreate(title="Launch", description="missing times")
+        EventCreate.model_validate({"title": "Launch", "description": "missing times"})
 
     errors = {error["loc"][0] for error in exc_info.value.errors()}
     assert errors == {"starts_at", "ends_at"}
@@ -50,7 +50,7 @@ def test_event_create_rejects_blank_text(field, value):
     }
 
     with pytest.raises(ValidationError) as exc_info:
-        EventCreate(**payload)
+        EventCreate.model_validate(payload)
 
     errors = exc_info.value.errors()
     assert errors[0]["loc"] == (field,)

@@ -1,12 +1,11 @@
 from functools import lru_cache
 
-from pydantic import Field, SecretStr
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 # --- Common ---
 class CommonSettings(BaseSettings):
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -17,7 +16,6 @@ class CommonSettings(BaseSettings):
 
 # --- Postgres ---
 class PostgresSettings(CommonSettings):
-
     postgres_server: str = Field(validation_alias="POSTGRES_SERVER")
 
     postgres_port: int = Field(validation_alias="POSTGRES_PORT")
@@ -42,7 +40,6 @@ class PostgresSettings(CommonSettings):
 
 # --- App settings ---
 class AppSettings(CommonSettings):
-
     environment: str = Field(validation_alias="ENVIRONMENT")
 
     project_name: str = Field(validation_alias="PROJECT_NAME")
@@ -52,7 +49,6 @@ class AppSettings(CommonSettings):
 
 # --- Main Settings ---
 class Settings(CommonSettings):
-
     postgres: PostgresSettings = Field(default_factory=PostgresSettings)
     app: AppSettings = Field(default_factory=AppSettings)
 

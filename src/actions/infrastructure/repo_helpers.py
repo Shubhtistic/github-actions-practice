@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import Any, TypeVar, cast
 
 from sqlalchemy import Select, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,12 +31,12 @@ async def get_one(
 
 
 async def get_all(
-    stmt: Select,
+    stmt: Select[Model],
     db_session: AsyncSession,
 ) -> list[Model]:
     """Fetch all rows. Pass pre-built query statement from upper layer."""
     result = await db_session.execute(stmt)
-    return result.scalars().all()
+    return list(result.scalars().all())
 
 
 async def delete_by_id(
@@ -45,11 +45,11 @@ async def delete_by_id(
     db_session: AsyncSession,
 ) -> bool:
     """Delete by primary key. Returns True if a row was actually deleted."""
-    pk_col = list(model.__table__.primary_key.columns)[0]
+    pk_col = next(iter(cast(Any, model).__table__.primary_key.columns))
     stmt = delete(model).where(pk_col == pk)
 
     result = await db_session.execute(stmt)
-    return result.rowcount > 0
+    return cast(Any, result).rowcount > 0
 
 
 async def check_exists(

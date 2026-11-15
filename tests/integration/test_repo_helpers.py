@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import Any, cast
 
 import pytest
 from sqlalchemy import select
@@ -16,6 +17,7 @@ from src.actions.infrastructure.repo_helpers import (
 from tests.conftest import make_event
 
 START = datetime(2026, 11, 15, 10, 0, tzinfo=UTC)
+EVENT_TABLE = cast(Any, Event).__table__
 
 
 async def test_create_flushes_and_assigns_primary_key(db_session):
@@ -42,7 +44,7 @@ async def test_get_all_applies_statement(db_session):
     )
     await create(make_event(title="Earlier", starts_at=START), db_session)
 
-    rows = await get_all(select(Event).order_by(Event.starts_at), db_session)
+    rows = await get_all(select(Event).order_by(EVENT_TABLE.c.starts_at), db_session)
 
     assert [row.title for row in rows] == ["Earlier", "Later"]
 
@@ -71,10 +73,10 @@ async def test_get_one_by_query(db_session):
     created = await create(make_event(title="Find me"), db_session)
 
     found = await get_one_by_query(
-        select(Event).where(Event.id == created.id), db_session
+        select(Event).where(EVENT_TABLE.c.id == created.id), db_session
     )
     missing = await get_one_by_query(
-        select(Event).where(Event.id == 999_999), db_session
+        select(Event).where(EVENT_TABLE.c.id == 999_999), db_session
     )
 
     assert found is not None
@@ -86,7 +88,9 @@ async def test_execute_query_returns_raw_result(db_session):
     await create(make_event(title="A"), db_session)
     await create(make_event(title="B"), db_session)
 
-    result = await execute_query(select(Event.title).order_by(Event.title), db_session)
+    result = await execute_query(
+        select(EVENT_TABLE.c.title).order_by(EVENT_TABLE.c.title), db_session
+    )
 
     assert result.scalars().all() == ["A", "B"]
 

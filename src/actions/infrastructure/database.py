@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlmodel import SQLModel
 
 from src.actions.infrastructure.config import get_settings
 
@@ -50,4 +49,3 @@ async def get_db_session() -> AsyncGenerator[AsyncSession]:
             if db_session.in_transaction():
                 await db_session.rollback()
             raise
-

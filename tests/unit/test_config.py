@@ -1,3 +1,5 @@
+from typing import Any
+
 from src.actions.infrastructure.config import (
     AppSettings,
     PostgresSettings,
@@ -6,7 +8,7 @@ from src.actions.infrastructure.config import (
 )
 
 
-def _postgres_settings(**overrides) -> PostgresSettings:
+def _postgres_settings(**overrides: Any) -> PostgresSettings:
     values = {
         "POSTGRES_SERVER": "db.local",
         "POSTGRES_PORT": 5432,
@@ -15,7 +17,7 @@ def _postgres_settings(**overrides) -> PostgresSettings:
         "POSTGRES_DB": "events",
     }
     values.update(overrides)
-    return PostgresSettings(_env_file=None, **values)
+    return PostgresSettings.model_validate(values)
 
 
 def test_postgres_settings_build_async_url():

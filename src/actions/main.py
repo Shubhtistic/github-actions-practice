@@ -1,5 +1,5 @@
-from contextlib import asynccontextmanager
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -75,4 +75,3 @@ async def validation_handler(request: Request, exc: RequestValidationError):
 
 # --- imports routers ---
 app.include_router(api_router)
-

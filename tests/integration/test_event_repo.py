@@ -14,7 +14,9 @@ async def test_create_and_get_event(db_session):
 
     assert created.id is not None
 
-    fetched = await repo.get_event(created.id, db_session)
+    event_id = created.id
+    assert event_id is not None
+    fetched = await repo.get_event(event_id, db_session)
 
     assert fetched is not None
     assert fetched.title == "Stored"
@@ -83,8 +85,10 @@ async def test_update_event_ignores_unknown_changes(db_session):
 async def test_delete_event_reports_whether_row_was_deleted(db_session):
     event = await repo.create_event(make_event(), db_session)
 
-    assert await repo.delete_event(event.id, db_session) is True
-    assert await repo.delete_event(event.id, db_session) is False
+    event_id = event.id
+    assert event_id is not None
+    assert await repo.delete_event(event_id, db_session) is True
+    assert await repo.delete_event(event_id, db_session) is False
 
     remaining = (await db_session.execute(select(Event))).scalars().all()
     assert remaining == []

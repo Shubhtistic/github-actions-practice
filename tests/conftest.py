@@ -1,5 +1,5 @@
 import asyncio
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncGenerator, AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 
@@ -66,7 +66,7 @@ def _prepare_test_database() -> None:
 
 
 @pytest_asyncio.fixture
-async def engine() -> AsyncIterator[AsyncEngine]:
+async def engine() -> AsyncGenerator[AsyncEngine, None]:
     """Postgres engine pointed at the isolated test database."""
     test_engine = create_async_engine(_test_url, poolclass=NullPool)
     async with test_engine.begin() as connection:
@@ -104,7 +104,7 @@ def _session_context(
     """Mirror the production session/transaction boundary."""
 
     @asynccontextmanager
-    async def get_db_session() -> AsyncIterator[AsyncSession]:
+    async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         async with session_factory() as db_session:
             try:
                 async with db_session.begin():
