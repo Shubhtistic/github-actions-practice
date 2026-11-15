@@ -19,14 +19,14 @@ if config.config_file_name is not None:
 
 # --- resolve the async url from project settings ---
 config.set_main_option(
-    "sqlalchemy.url",
+    "sqlalchemy.url", 
     get_settings().postgres.postgres_async_url,
 )
 
 # --- metadata: all models registered via model import ---
 target_metadata = SQLModel.metadata
 
-
+    
 # --- offline mode: emit sql to stdout instead of hitting the db ---
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
