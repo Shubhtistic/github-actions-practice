@@ -11,6 +11,29 @@ on:
 jobs:
   run-tests-before-merge:
     runs-on: ubuntu-26.04 # it has 3.14 python that we want
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: actions
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_SERVER: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: actions
+
     steps:
       - name: get our code
         uses: actions/checkout@v4 # official repo cloner
