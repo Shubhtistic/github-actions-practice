@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: get our code
-        uses: actions/checkout@v4 # official repo cloner
+        uses: actions/checkout@v5 # official repo cloner
 
       - name: get uv pkg manager
         uses: astral-sh/setup-uv@v10.3.3
