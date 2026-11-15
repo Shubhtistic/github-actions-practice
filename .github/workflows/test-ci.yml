@@ -31,8 +31,10 @@ jobs:
      - name: clone the code
        uses: actions/checkout@v7
      
-     - name: install uv to ue ty
+     - name: install uv
        uses: astral-sh/setup-uv@10.3.3
+
+     - name: run ty check
        run: uvx ty check
   
   do-actual-tests:
