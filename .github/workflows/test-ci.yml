@@ -11,46 +11,60 @@ on:
 jobs:
   check-linting-with-ruff:
     runs-on: ubuntu-26.04
-
-    steps:
-      - name: clone the code
-        uses: actions/checkout@v7
-
-      - name: setup ruff
-        uses: astral-sh/ruff-action@v4.1.0
-
-  do-type-checks-with-ty:
-    runs-on: ubuntu-26.04
-    needs:
-      - check-linting-with-ruff
-
     steps:
       - name: clone the code
         uses: actions/checkout@v7
 
       - name: install uv
         uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.14"
 
-      - name: run ty check
-        run: uvx ty check
+      - name: install deps
+        run: uv sync
+
+      - name: lint with Makefile
+        run: make lint
+
+  do-type-checks-with-ty:
+    runs-on: ubuntu-26.04
+    needs:
+      - check-linting-with-ruff
+    steps:
+      - name: clone the code
+        uses: actions/checkout@v7
+
+      - name: install uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.14"
+
+      - name: install deps
+        run: uv sync
+
+      - name: typecheck with Makefile
+        run: make typecheck
 
   do-actual-tests:
     runs-on: ubuntu-26.04
-
     needs:
       - check-linting-with-ruff
       - do-type-checks-with-ty
 
     services:
       postgres:
-        image: postgres:17 
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: actions
-        
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     env:
       ENVIRONMENT: test
@@ -66,15 +80,13 @@ jobs:
       - name: get the code again
         uses: actions/checkout@v7
 
-      - name: get the python onto ths runner
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.14"
-
       - name: get uv pkg manager
         uses: astral-sh/setup-uv@v10.3.3
         with:
           python-version: "3.14"
 
-      - name: run the tests
-        run: uv run pytest
+      - name: install deps
+        run: uv sync
+
+      - name: run tests with Makefile
+        run: make test
