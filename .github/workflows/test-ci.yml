@@ -1,32 +1,62 @@
-name: "hello world"
+name: "ci hello world"
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
+
 
 jobs:
-  run-tests-before-merge:
-    runs-on: ubuntu-26.04 # it has 3.14 python that we want
+  check-linting-with-ruff:
+    runs-on: ubuntu-26.04
 
+    steps:
+     - name: clone the code
+       uses: actions/checkout@v7
+     
+     # ruff does not need python env
+     # this automatically does ruff check and we can also use this later as its added in runner env
+     - name: setup ruff
+       uses: astral-sh/ruff-action
+
+  do-type-checks-with-ty:
+    runs-on: ubuntu-26.04
+    needs:
+     - check-linting-with-ruff
+    
+    steps:
+     - name: clone the code
+       uses: actions/checkout@v7
+     
+     - name: install uv to ue ty
+       uses: astral-sh/setup-uv@10.3.3
+       run: uvx ty check
+  
+  do-actual-tests:
+    runs-on: ubuntu-26.04
+
+    needs:
+      - check-linting-with-ruff
+      - do-type-checks-with-ty
+
+    # only workflow level can be read by services by using 
+    # ${{ env.POSTGRES_USER }}
+    # not job level
     services:
       postgres:
-        image: postgres:17
+        image: postgres:17 
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: actions
+         POSTGRES_USER: postgres
+         POSTGRES_PASSWORD: postgres
+         POSTGRES_DB: actions
+        
         ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
+        - 5432:5432
+    
+    # injects variables -> this is job level
     env:
       ENVIRONMENT: test
       PROJECT_NAME: actions
@@ -38,15 +68,18 @@ jobs:
       POSTGRES_DB: actions
 
     steps:
-      - name: get our code
-        uses: actions/checkout@v5 # official repo cloner
+     - name: get the code again
+       uses: actions/checkout@v7
 
-      - name: get uv pkg manager
-        uses: astral-sh/setup-uv@v10.3.3
-        with:
-         python-version: "3.14"
-         enable-cache: true
-      
-      - name: run pytest
-        run: uv run pytest
+     - name: get the python onto ths runner
+       uses: actions/setup-python@v7
+       with:
+        python-version: "3.14"
 
+     - name: get uv pkg manager
+       uses: astral-sh/setup-uv@10.3.3
+       with:
+        python-version: "3.14"
+
+     - name: run the tests
+       run: uv run pytest
